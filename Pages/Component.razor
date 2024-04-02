@@ -1,0 +1,28 @@
+﻿@page "/scheduler"
+
+<DxScheduler StartDate="@DateTime.Today" DataStorage="@DataStorage">
+    <DxSchedulerDayView ShowWorkTimeOnly="true" DayCount="1">
+    </DxSchedulerDayView>
+</DxScheduler>
+
+@code
+{
+    DxSchedulerDataStorage DataStorage = new DxSchedulerDataStorage()
+        {
+            AppointmentMappings = new DxSchedulerAppointmentMappings()
+            {
+                Type = "AppointmentType",
+                Start = "StartDate",
+                End = "EndDate",
+                Subject = "Caption",
+                AllDay = "AllDay",
+                Location = "Location",
+                Description = "Description",
+                LabelId = "Label",
+                StatusId = "Status",
+                RecurrenceInfo = "Recurrence"
+            },
+            AppointmentsSource = Appointments.GetAppointments()
+        };
+}
+}
