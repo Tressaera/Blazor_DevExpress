@@ -1,11 +1,24 @@
 ﻿@page "/newpage"
 @using System.Collections.ObjectModel
 
-<DxDataGrid Data="@personels">
-    <DxDataGridColumn Field="@nameof(Personel.İsim)" />
-    <DxDataGridDateEditColumn Field="@nameof(Personel.Tarih)" />
-    <DxDataGridSpinEditColumn Field="@nameof(Personel. Yas)" />
-    <DxDataGridCheckBoxColumn Field="@nameof(Personel.Durum)" />
+<DxDataGrid Data="@personels" ShowGroupPanel="true" ShowFilterRow="true"
+            InitNewRow="@OnInitNewRow"
+            RowInserting="@((newValues) => OnRowInserting(newValues))"
+            RowUpdating="@((updatingDataItem, newValues) => OnRowUpdating(updatingDataItem, newValues))"
+            RowRemoving="@((dataItem) => OnRowDeleting(dataItem))">
+         <HeaderTemplate>
+         <DxToolbar>
+             <DxDataGridColumnChooserToolbarItem Alignment="ToolbarItemAlignment.Right" />
+             </DxToolbar>
+             </HeaderTemplate>
+    <Columns>
+        <DxDataGridColumn Field="@nameof(Personel.İsim)" Caption="Ad Soyad" SortIndex="0" SortOrder="DataGridColumnSortOrder.Descending" />
+        <DxDataGridDateEditColumn Field="@nameof(Personel.Tarih)" DisplayFormat="D" EditorFormat="d" />
+        <DxDataGridSpinEditColumn Field="@nameof(Personel. Yas)" TextAlignment="DataGridTextAlign.Left" />
+        <DxDataGridCheckBoxColumn Field="@nameof(Personel.Durum)" Width="100px" />
+        <DxDataGridComboBoxColumn Field="@nameof(Personel. Ulke)" Data="Ulkeler" Visible="false" />
+    </Columns>
+
 </DxDataGrid>
 
 @code{
@@ -15,24 +28,70 @@
         public string? İsim { get; set; }
         public bool Durum { get; set; }
         public int Yas { get; set; }
+        public string? Ulke { get; set; }
     }
+    public string[] Ulkeler = new[] { "Azerbaycan", "Almanya", "Hollanda", "Bulgaristan"};
     static readonly Random random = new Random();
-    readonly ObservableCollection<Personel> personels=new ObservableCollection<Personel>();
+    readonly ObservableCollection<Personel> personels = new ObservableCollection<Personel>();
     protected override void OnInitialized()
     {
         String[] İsimler =
             {
-         "Mert", "Kaan", "Ebru", "Cenk"  
+                "Mert", "Kaan", "Ebru", "Cenk"
         };
         foreach (var date in Enumerable.Range(1, 30).Select(i => DateTime.Now.Date.AddDays(i)))
         {
             personels.Add(new Personel()
                 {
                     Tarih = date,
-                    Yas=random.Next(15, 45),
+                    Yas = random.Next(15, 45),
                     Durum = Convert.ToBoolean(random.Next(0, 2)),
                     İsim = İsimler[random.Next(0, İsimler.Length)]
                 });
         }
-}
+    }
+    void OnRowInserting(Dictionary<string, object> itemProperties)
+    {
+        personels.Add(KisiyiGuncelle(new Personel(), itemProperties));
+    }
+    void OnRowDeleting(Personel item)
+    {
+        personels.Remove(item);
+    }
+    void OnRowUpdating(Personel item, Dictionary<string, object> itemProperties)
+    {
+        KisiyiGuncelle(item, itemProperties);
+    }
+
+    Task OnInitNewRow(Dictionary<string, object> values)
+    {
+        values.Add("İsim", "Mert");
+        values.Add("Tarih", DateTime.Now);
+        values.Add("Yas", 13); // "Yaş" yerine "Yas" kullanıldı
+        values.Add("Durum", true); // "Aktif" yerine "Durum" kullanıldı
+        return Task.CompletedTask;
+    }
+    static Personel KisiyiGuncelle(Personel item, Dictionary<string, object> itemProperties)
+    {
+        foreach (var field in itemProperties.Keys)
+        {
+            switch (field)
+            {
+                case "İsim":
+                    item.İsim=(string)itemProperties[nameof(Personel.İsim)];
+                    break;
+                case "Tarih":
+                    item.Tarih=(DateTime)itemProperties[nameof(Personel.Tarih)];
+                    break;
+                case "Yaş":
+                    item.Yas=(int)itemProperties[nameof(Personel.Yas)];
+                    break;
+                case "Durum":
+                    item.Durum=(bool)itemProperties[nameof(Personel.Durum)];
+                    break;
+            }
+        }
+        return item;
+    }
+
 }
