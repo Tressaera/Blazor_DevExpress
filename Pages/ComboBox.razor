@@ -1,0 +1,40 @@
+﻿@page "/combobox"
+
+<div class="card-body mw-480">
+    <DxComboBox Data="@Staff.Datasource"
+                AllowUserInput="true"
+                FilteringMode="DataGridFilteringMode.Contains"
+                ClearButtonDisplayMode="DataEditorClearButtonDisplayMode.Auto"
+                NullText="Bir değer seçin veya arayın"
+                @bind-Value="SelectedRealBusinessObject" />
+</div>
+
+@code {
+    public enum Departman { Motors, Electronics, Software }
+
+    public class Personel
+    {
+        public int Id { get; set; }
+        public string? Adi { get; set; }
+        public string? Soyadi { get; set; }
+        public Departman Departman { get; set; }
+        public string Text => $"{Adi} {Soyadi} ({Departman} Dept.)";
+    }
+
+    public static class Staff
+    {
+        private static readonly Lazy<List<Personel>> dataSource = new Lazy<List<Personel>>(() =>
+        {
+            var datasource = new List<Personel>()
+                    {
+                new Personel() {Id=0, Adi="John", Soyadi="Heart", Departman=Departman.Motors},
+                new Personel() {Id=1, Adi="Jane", Soyadi="Doe", Departman=Departman.Software},
+                new Personel() {Id=2, Adi="Jack", Soyadi="Jones", Departman=Departman.Electronics}
+                    };
+            return datasource;
+        });
+        public static List<Personel> Datasource { get { return dataSource.Value; } }
+    }
+
+    Personel SelectedRealBusinessObject { get; set; } = Staff.Datasource[0];
+}
