@@ -1,0 +1,38 @@
+﻿@page "/newpage"
+@using System.Collections.ObjectModel
+
+<DxDataGrid Data="@personels">
+    <DxDataGridColumn Field="@nameof(Personel.İsim)" />
+    <DxDataGridDateEditColumn Field="@nameof(Personel.Tarih)" />
+    <DxDataGridSpinEditColumn Field="@nameof(Personel. Yas)" />
+    <DxDataGridCheckBoxColumn Field="@nameof(Personel.Durum)" />
+</DxDataGrid>
+
+@code{
+    public class Personel
+    {
+        public DateTime Tarih { get; set; }
+        public string? İsim { get; set; }
+        public bool Durum { get; set; }
+        public int Yas { get; set; }
+    }
+    static readonly Random random = new Random();
+    readonly ObservableCollection<Personel> personels=new ObservableCollection<Personel>();
+    protected override void OnInitialized()
+    {
+        String[] İsimler =
+            {
+         "Mert", "Kaan", "Ebru", "Cenk"  
+        };
+        foreach (var date in Enumerable.Range(1, 30).Select(i => DateTime.Now.Date.AddDays(i)))
+        {
+            personels.Add(new Personel()
+                {
+                    Tarih = date,
+                    Yas=random.Next(15, 45),
+                    Durum = Convert.ToBoolean(random.Next(0, 2)),
+                    İsim = İsimler[random.Next(0, İsimler.Length)]
+                });
+        }
+}
+}
