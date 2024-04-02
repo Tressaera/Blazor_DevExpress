@@ -1,0 +1,53 @@
+﻿@page "/charts"
+@using System.Collections.ObjectModel
+
+<DxChart Data="@personels" CustomizeSeriesPoint="@PreparePointColor">
+    <DxChartTitle Text="Tüm Personel" />
+    <DxChartLegend AllowToggleseries="true" VerticalAlignment="VerticalEdge.Bottom" Position="RelativePosition.Outside"/>
+    <DxChartPieSeries ValueField="@((Personel i) => i.Yas)" ArgumentField="@(i => i.Durum)" AggregationMethod="@Enumerable.Count">
+    <DxChartSeriesLabel Visible="true"/>
+    </DxChartPieSeries>
+ </DxChart>
+
+@code {
+    protected void PreparePointColor(ChartSeriesPointCustomizationSettings settings)
+    {
+        if (settings.Point.Argument.ToString() == "True")
+        {
+            settings.PointAppearance.Color = System.Drawing.Color.Green;
+        }
+        else if (settings.Point.Argument.ToString() == "False")
+        {
+            settings.PointAppearance.Color=System.Drawing.Color.Red;
+        }
+    }
+
+    public class Personel
+    {
+        public DateTime Tarih { get; set; }
+        public string? İsim { get; set; }
+        public bool Durum { get; set; }
+        public int Yas { get; set; }
+    }
+    static readonly Random random = new Random();
+    readonly ObservableCollection<Personel> personels = new ObservableCollection<Personel>();
+
+    protected override void OnInitialized()
+    {
+        String[] İsimler =
+            {
+                "Mert", "Kaan", "Ebru", "Cenk"
+            };
+
+        foreach (var date in Enumerable.Range(1, 30).Select(i => DateTime.Now.Date.AddDays(i)))
+        {
+            personels.Add(new Personel()
+                {
+                    Tarih = date,
+                    Yas = random.Next(15, 45),
+                    Durum = Convert.ToBoolean(random.Next(0, 2)),
+                    İsim = İsimler[random.Next(0, İsimler.Length)]
+                });
+        }
+    }
+}
